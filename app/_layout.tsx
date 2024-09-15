@@ -1,37 +1,62 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import { useFonts } from "expo-font";
+import { Text, View, StatusBar } from "react-native";
+import HomePage from "./index";
+import TableOfContents from "./TableOfContents";
+import SubChapterScreen from "./SubChapterScreen";
+import ContactUs from "./ContactUs";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+const Stack = createStackNavigator();
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+const AppNavigator = () => {
+  // Load the custom font
+  const [fontsLoaded] = useFonts({
+    CustomFont: require("../assets/fonts/amharic-font.ttf"), // Path to your font file
   });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
+  if (!fontsLoaded) {
+    // Return a loading screen if the font is not loaded yet
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ fontFamily: 'CustomFont', fontSize: 18 }}>እቅፍ እየተጠበቀ ነው...</Text>
+      </View>
+    );
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <>
+      {/* Set StatusBar style */}
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+
+      <Stack.Navigator>
+        <Stack.Screen
+          name="index"
+          component={HomePage}
+          options={{ headerShown: false }} // Hide header for HomePage
+        />
+        <Stack.Screen
+          name="TableOfContents"
+          component={TableOfContents}
+          options={{ title: "የክፍሎች ዝርዝር" }} // Amharic title for Table of Contents
+        />
+        <Stack.Screen
+          name="SubChapterScreen"
+          component={SubChapterScreen}
+          options={({ route }) => ({
+            title: "ክፍል ዝርዝር", // Amharic title for SubChapterScreen
+            headerStyle: { backgroundColor: "#000" }, // Header background color
+            headerTintColor: "#fff", // Header text color
+          })}
+        />
+        <Stack.Screen
+          name="ContactUs"
+          component={ContactUs}
+          options={{ title: "እኛን ያግኙ" }} // Amharic title for Contact Us
+        />
+      </Stack.Navigator>
+    </>
   );
-}
+};
+
+export default AppNavigator;
